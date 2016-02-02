@@ -55,6 +55,7 @@
 		97AC71871C60915C0098443A = {
 			isa = PBXGroup;
 			children = (
+				97AC71DC1C60C6930098443A /* New Group */,
 				97AC71D51C6098090098443A /* Commom */,
 				97AC71921C60915D0098443A /* ShiuSlideView */,
 				97AC71911C60915D0098443A /* Products */,
@@ -146,6 +147,13 @@
 				97AC71D91C6098090098443A /* ShiuSlideView.m */,
 			);
 			path = ShiuSlideView;
+			sourceTree = "<group>";
+		};
+		97AC71DC1C60C6930098443A /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "New Group";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

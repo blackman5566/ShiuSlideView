@@ -64,13 +64,6 @@
 - (void)setupScrollView {
     CGFloat height = ScreenHeight - TopViewHeight;
     self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, TopViewHeight, ScreenWidth, height)];
-    for (int i = 0; i < self.arrayViews.count; i++) {
-        CGRect viewControllerFrame = CGRectMake(i * ScreenWidth, 0, ScreenWidth, height);
-        UIViewController *viewController = self.arrayViews[i];
-        viewController.view.frame = viewControllerFrame;
-        [self.scrollView addSubview:viewController.view];
-    }
-    [self addSubview:self.scrollView];
     self.scrollView.contentSize = CGSizeMake(self.arrayViews.count * ScreenWidth, 0);
     self.scrollView.pagingEnabled = YES;
     self.scrollView.showsHorizontalScrollIndicator = NO;
@@ -78,27 +71,35 @@
     self.scrollView.directionalLockEnabled = YES;
     self.scrollView.bounces = NO;
     self.scrollView.delegate = self;
+
+    for (int i = 0; i < self.arrayViews.count; i++) {
+        CGRect viewControllerFrame = CGRectMake(i * ScreenWidth, 0, ScreenWidth, height);
+        UIViewController *viewController = self.arrayViews[i];
+        viewController.view.frame = viewControllerFrame;
+        [self.scrollView addSubview:viewController.view];
+    }
+    [self addSubview:self.scrollView];
 }
 
 #pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    NSInteger currentIndex = ((scrollView.contentOffset.x - ScreenWidth / 2) / ScreenWidth) + 1;
+    
 }
 
 #pragma mark - Button Action
 
 - (void)buttonAction:(id)sender {
     UIButton *button = (UIButton *)sender;
-    NSInteger currentIndex = ((self.scrollView.contentOffset.x - ScreenWidth / 2) / ScreenWidth);
-    NSLog(@"%d", currentIndex);
+    NSInteger currentIndex = self.scrollView.contentOffset.x / ScreenWidth;
     if ([button.titleLabel.text isEqualToString:@">"]) {
-        [self.scrollView setContentOffset:CGPointMake((currentIndex + 1) * ScreenWidth, 0) animated:YES];
+        currentIndex++;
     }
     else {
-        [self.scrollView setContentOffset:CGPointMake((currentIndex - 1) * ScreenWidth, 0) animated:YES];
-
+        currentIndex--;
     }
+    currentIndex %= self.arrayViews.count;
+    [self.scrollView setContentOffset:CGPointMake(currentIndex * ScreenWidth, 0) animated:YES];
 }
 
 @end
