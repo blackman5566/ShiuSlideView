@@ -7,6 +7,9 @@
 //
 
 #import "MainViewController.h"
+#import "ShiuSlideView.h"
+#import "FirstViewController.h"
+#import "SecondViewController.h"
 
 @interface MainViewController ()
 
@@ -16,7 +19,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
+    NSArray *viewControllers = @[[FirstViewController new],[SecondViewController new]];
+    
+    ShiuSlideView * view = [[ShiuSlideView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) WithViewControllers:viewControllers];
+    [self.view addSubview:view];
 }
 
 @end
