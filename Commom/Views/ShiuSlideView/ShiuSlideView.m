@@ -20,6 +20,7 @@
 @property (nonatomic, assign) CGFloat startOffsetX;
 @property (nonatomic, assign) CGFloat endOffsetX;
 @property (nonatomic, assign) CGFloat willEndOffsetX;
+@property (nonatomic, assign) BOOL isEndOfScroll;
 
 @end
 
@@ -75,7 +76,6 @@
     self.scrollView.directionalLockEnabled = YES;
     self.scrollView.bounces = NO;
     self.scrollView.delegate = self;
-
     for (int i = 0; i < 3; i++) {
         CGRect viewControllerFrame = CGRectMake(i * ScreenWidth, 0, ScreenWidth, height);
         UIViewController *viewController = self.viewControllers[i][@"view"];
@@ -84,6 +84,7 @@
     }
     [self addSubview:self.scrollView];
     self.middenIndex = 1;
+    self.isEndOfScroll = YES;
     UIView *middenView = (UIView *)self.scrollView.subviews[1];
     [self.scrollView scrollRectToVisible:middenView.frame animated:NO];
 }
@@ -104,17 +105,20 @@
         // 右
         self.middenIndex++;
         [self reloadScrollView];
+        NSLog(@"right");
     }
     else if (self.willEndOffsetX > self.endOffsetX && self.willEndOffsetX < self.startOffsetX) {
         // 左
         self.middenIndex--;
         [self reloadScrollView];
-        NSLog(@"111");
+        NSLog(@"left");
     }
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-
+    if (scrollView.contentOffset.x >= 480 || scrollView.contentOffset.x <= 160) {
+        self.scrollView.userInteractionEnabled = NO;
+    }
 }
 
 #pragma mark - Button Action
@@ -159,6 +163,7 @@
     }
     UIView *middenView = (UIView *)self.scrollView.subviews[1];
     [self.scrollView scrollRectToVisible:middenView.frame animated:NO];
+    self.scrollView.userInteractionEnabled = YES;
 }
 
 - (NSInteger)correctionIndex:(NSInteger)index {
@@ -166,4 +171,5 @@
     index %= self.viewControllers.count;
     return index;
 }
+
 @end
