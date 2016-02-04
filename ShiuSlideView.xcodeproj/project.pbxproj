@@ -18,6 +18,8 @@
 		97AC71CD1C6096910098443A /* SecondViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 97AC71CB1C6096910098443A /* SecondViewController.m */; };
 		97AC71CE1C6096910098443A /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 97AC71CC1C6096910098443A /* SecondViewController.xib */; };
 		97AC71DA1C6098090098443A /* ShiuSlideView.m in Sources */ = {isa = PBXBuildFile; fileRef = 97AC71D91C6098090098443A /* ShiuSlideView.m */; };
+		97AC71E61C6347B70098443A /* ThirdViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 97AC71E41C6347B70098443A /* ThirdViewController.m */; };
+		97AC71E71C6347B70098443A /* ThirdViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 97AC71E51C6347B70098443A /* ThirdViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +41,9 @@
 		97AC71CC1C6096910098443A /* SecondViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SecondViewController.xib; sourceTree = "<group>"; };
 		97AC71D81C6098090098443A /* ShiuSlideView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShiuSlideView.h; sourceTree = "<group>"; };
 		97AC71D91C6098090098443A /* ShiuSlideView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShiuSlideView.m; sourceTree = "<group>"; };
+		97AC71E31C6347B70098443A /* ThirdViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThirdViewController.h; sourceTree = "<group>"; };
+		97AC71E41C6347B70098443A /* ThirdViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThirdViewController.m; sourceTree = "<group>"; };
+		97AC71E51C6347B70098443A /* ThirdViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ThirdViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,7 +60,6 @@
 		97AC71871C60915C0098443A = {
 			isa = PBXGroup;
 			children = (
-				97AC71DC1C60C6930098443A /* New Group */,
 				97AC71D51C6098090098443A /* Commom */,
 				97AC71921C60915D0098443A /* ShiuSlideView */,
 				97AC71911C60915D0098443A /* Products */,
@@ -78,6 +82,7 @@
 				97AC71B01C6091CE0098443A /* MainViewController */,
 				97AC71C31C6096880098443A /* FirstViewController */,
 				97AC71C91C6096910098443A /* SecondViewController */,
+				97AC71E21C6347B70098443A /* ThirdViewController */,
 				97AC719F1C60915D0098443A /* Assets.xcassets */,
 				97AC71A11C60915D0098443A /* LaunchScreen.storyboard */,
 				97AC71A41C60915D0098443A /* Info.plist */,
@@ -149,11 +154,14 @@
 			path = ShiuSlideView;
 			sourceTree = "<group>";
 		};
-		97AC71DC1C60C6930098443A /* New Group */ = {
+		97AC71E21C6347B70098443A /* ThirdViewController */ = {
 			isa = PBXGroup;
 			children = (
+				97AC71E31C6347B70098443A /* ThirdViewController.h */,
+				97AC71E41C6347B70098443A /* ThirdViewController.m */,
+				97AC71E51C6347B70098443A /* ThirdViewController.xib */,
 			);
-			name = "New Group";
+			path = ThirdViewController;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -216,6 +224,7 @@
 			files = (
 				97AC71A31C60915D0098443A /* LaunchScreen.storyboard in Resources */,
 				97AC71B51C6091CE0098443A /* MainViewController.xib in Resources */,
+				97AC71E71C6347B70098443A /* ThirdViewController.xib in Resources */,
 				97AC71A01C60915D0098443A /* Assets.xcassets in Resources */,
 				97AC71C81C6096880098443A /* FirstViewController.xib in Resources */,
 				97AC71CE1C6096910098443A /* SecondViewController.xib in Resources */,
@@ -235,6 +244,7 @@
 				97AC71DA1C6098090098443A /* ShiuSlideView.m in Sources */,
 				97AC71951C60915D0098443A /* main.m in Sources */,
 				97AC71C71C6096880098443A /* FirstViewController.m in Sources */,
+				97AC71E61C6347B70098443A /* ThirdViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

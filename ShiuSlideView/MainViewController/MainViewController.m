@@ -10,6 +10,7 @@
 #import "ShiuSlideView.h"
 #import "FirstViewController.h"
 #import "SecondViewController.h"
+#import "ThirdViewController.h"
 
 @interface MainViewController ()
 
@@ -19,9 +20,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSArray *viewControllers = @[[FirstViewController new],[SecondViewController new]];
-    
-    ShiuSlideView * view = [[ShiuSlideView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) WithViewControllers:viewControllers];
+    NSArray *viewControllers = @[@{ @"view":[FirstViewController new], @"title":@"第一頁" }, @{ @"view":[SecondViewController new], @"title":@"第二頁" }, @{ @"view":[ThirdViewController new], @"title":@"第三頁" }];
+
+    ShiuSlideView *view = [[ShiuSlideView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) WithViewControllers:viewControllers];
     [self.view addSubview:view];
 }
 

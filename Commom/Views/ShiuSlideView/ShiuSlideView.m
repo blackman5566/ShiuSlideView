@@ -7,29 +7,34 @@
 //
 
 #import "ShiuSlideView.h"
-
+#import "FirstViewController.h"
 #define TopViewWidth 50
 #define TopViewHeight 50
 
 @interface ShiuSlideView () <UIScrollViewDelegate>
 
-@property (nonatomic, strong) NSArray *arrayViews;
+@property (nonatomic, strong) NSArray *viewControllers;
 @property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) UILabel *displayLable;
+@property (nonatomic, assign) NSInteger middenIndex;
+@property (nonatomic, assign) CGFloat startOffsetX;
+@property (nonatomic, assign) CGFloat endOffsetX;
+@property (nonatomic, assign) CGFloat willEndOffsetX;
 
 @end
 
 @implementation ShiuSlideView
-@synthesize arrayViews = _arrayViews;
+@synthesize viewControllers = _viewControllers;
 
 - (instancetype)initWithFrame:(CGRect)frame WithViewControllers:(NSArray *)viewControllers {
     if (self = [super initWithFrame:frame]) {
-        self.arrayViews = viewControllers;
+        self.viewControllers = viewControllers;
     }
     return self;
 }
 
-- (void)setArrayViews:(NSArray *)arrayViews {
-    _arrayViews = arrayViews;
+- (void)setViewControllers:(NSArray *)viewControllers {
+    _viewControllers = viewControllers;
     [self setupTopView];
     [self setupScrollView];
 }
@@ -38,33 +43,32 @@
     UIView *topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, TopViewHeight)];
     topView.backgroundColor = [UIColor redColor];
     UIButton *leftButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, TopViewWidth, TopViewHeight)];
-    [leftButton addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchDown];
+    [leftButton addTarget:self action:@selector(leftButtonAction:) forControlEvents:UIControlEventTouchDown];
     [leftButton setTitle:@"<" forState:UIControlStateNormal];
 
     CGFloat x = ScreenWidth - TopViewWidth;
     UIButton *rightButton = [[UIButton alloc] initWithFrame:CGRectMake(x, 0, TopViewWidth, TopViewHeight)];
-    [rightButton addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchDown];
+    [rightButton addTarget:self action:@selector(rightButtonAction:) forControlEvents:UIControlEventTouchDown];
     [rightButton setTitle:@">" forState:UIControlStateNormal];
 
     CGFloat centerX = (CGRectGetWidth(topView.frame) - 100) / 2;
     CGFloat centerY = (CGRectGetHeight(topView.frame) - 50) / 2;
-    UILabel *displayLable = [[UILabel alloc] initWithFrame:CGRectMake(centerX, centerY, 100, 50)];
-    displayLable.font = [UIFont fontWithName:@"Helvetica-Bold" size:20];
-    displayLable.text = @"哈嚕";
-    displayLable.textColor = [UIColor whiteColor];
-    displayLable.textAlignment = NSTextAlignmentCenter;
+    self.displayLable = [[UILabel alloc] initWithFrame:CGRectMake(centerX, centerY, 100, 50)];
+    self.displayLable.font = [UIFont fontWithName:@"Helvetica-Bold" size:20];
+    self.displayLable.text = self.viewControllers[1][@"title"];
+    self.displayLable.textColor = [UIColor whiteColor];
+    self.displayLable.textAlignment = NSTextAlignmentCenter;
 
-    [topView addSubview:displayLable];
+    [topView addSubview:self.displayLable];
     [topView addSubview:leftButton];
     [topView addSubview:rightButton];
     [self addSubview:topView];
-
 }
 
 - (void)setupScrollView {
     CGFloat height = ScreenHeight - TopViewHeight;
     self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, TopViewHeight, ScreenWidth, height)];
-    self.scrollView.contentSize = CGSizeMake(self.arrayViews.count * ScreenWidth, 0);
+    self.scrollView.contentSize = CGSizeMake(3 * ScreenWidth, height);
     self.scrollView.pagingEnabled = YES;
     self.scrollView.showsHorizontalScrollIndicator = NO;
     self.scrollView.showsVerticalScrollIndicator = NO;
@@ -72,34 +76,94 @@
     self.scrollView.bounces = NO;
     self.scrollView.delegate = self;
 
-    for (int i = 0; i < self.arrayViews.count; i++) {
+    for (int i = 0; i < 3; i++) {
         CGRect viewControllerFrame = CGRectMake(i * ScreenWidth, 0, ScreenWidth, height);
-        UIViewController *viewController = self.arrayViews[i];
+        UIViewController *viewController = self.viewControllers[i][@"view"];
         viewController.view.frame = viewControllerFrame;
         [self.scrollView addSubview:viewController.view];
     }
     [self addSubview:self.scrollView];
+    self.middenIndex = 1;
+    UIView *middenView = (UIView *)self.scrollView.subviews[1];
+    [self.scrollView scrollRectToVisible:middenView.frame animated:NO];
 }
 
 #pragma mark - UIScrollViewDelegate
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    self.startOffsetX = scrollView.contentOffset.x;
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    self.willEndOffsetX = scrollView.contentOffset.x;
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    self.endOffsetX = scrollView.contentOffset.x;
+    if (self.startOffsetX < self.willEndOffsetX && self.willEndOffsetX < self.endOffsetX) {
+        // 右
+        self.middenIndex++;
+        [self reloadScrollView];
+    }
+    else if (self.willEndOffsetX > self.endOffsetX && self.willEndOffsetX < self.startOffsetX) {
+        // 左
+        self.middenIndex--;
+        [self reloadScrollView];
+        NSLog(@"111");
+    }
+}
+
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
+
 }
 
 #pragma mark - Button Action
 
-- (void)buttonAction:(id)sender {
-    UIButton *button = (UIButton *)sender;
-    NSInteger currentIndex = self.scrollView.contentOffset.x / ScreenWidth;
-    if ([button.titleLabel.text isEqualToString:@">"]) {
-        currentIndex++;
-    }
-    else {
-        currentIndex--;
-    }
-    currentIndex %= self.arrayViews.count;
-    [self.scrollView setContentOffset:CGPointMake(currentIndex * ScreenWidth, 0) animated:YES];
+- (void)leftButtonAction:(id)sender {
+    [self leftAction];
+    [UIView animateWithDuration:.25 animations: ^{
+         self.scrollView.contentOffset = CGPointMake(0, 0);
+     }];
+    [self reloadScrollView];
 }
 
+- (void)rightButtonAction:(id)sender {
+    [self rightAction];
+    [UIView animateWithDuration:.25 animations: ^{
+         self.scrollView.contentOffset = CGPointMake(2 * ScreenWidth, 0);
+     }];
+    [self reloadScrollView];
+}
+#pragma mark - private method
+
+- (void)leftAction {
+    self.middenIndex--;
+    self.middenIndex = [self correctionIndex:self.middenIndex];
+}
+
+- (void)rightAction {
+    self.middenIndex++;
+    self.middenIndex = [self correctionIndex:self.middenIndex];
+}
+
+- (void)reloadScrollView {
+    [self.scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    NSInteger startIndex = self.middenIndex - 2;
+    CGFloat height = ScreenHeight - TopViewHeight;
+    for (int i = 0; i < 3; i++) {
+        CGRect viewControllerFrame = CGRectMake(i * ScreenWidth, 0, ScreenWidth, height);
+        startIndex += 1;
+        UIViewController *viewController = self.viewControllers[[self correctionIndex:startIndex]][@"view"];
+        viewController.view.frame = viewControllerFrame;
+        [self.scrollView addSubview:viewController.view];
+    }
+    UIView *middenView = (UIView *)self.scrollView.subviews[1];
+    [self.scrollView scrollRectToVisible:middenView.frame animated:NO];
+}
+
+- (NSInteger)correctionIndex:(NSInteger)index {
+    index += self.viewControllers.count;
+    index %= self.viewControllers.count;
+    return index;
+}
 @end
