@@ -10,6 +10,7 @@
 #import "FirstViewController.h"
 #define TopViewWidth 50
 #define TopViewHeight 50
+#define ScrollViewHeight (ScreenHeight - TopViewHeight)
 
 @interface ShiuSlideView () <UIScrollViewDelegate>
 
@@ -17,10 +18,6 @@
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UILabel *displayLable;
 @property (nonatomic, assign) NSInteger middenIndex;
-@property (nonatomic, assign) CGFloat startOffsetX;
-@property (nonatomic, assign) CGFloat endOffsetX;
-@property (nonatomic, assign) CGFloat willEndOffsetX;
-@property (nonatomic, assign) BOOL isEndOfScroll;
 
 @end
 
@@ -67,58 +64,24 @@
 }
 
 - (void)setupScrollView {
-    CGFloat height = ScreenHeight - TopViewHeight;
-    self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, TopViewHeight, ScreenWidth, height)];
-    self.scrollView.contentSize = CGSizeMake(3 * ScreenWidth, height);
+    CGFloat scrollViewHeight = ScreenHeight - TopViewHeight;
+    self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, TopViewHeight, ScreenWidth, scrollViewHeight)];
+    self.scrollView.contentSize = CGSizeMake(3 * ScreenWidth, ScrollViewHeight);
     self.scrollView.pagingEnabled = YES;
     self.scrollView.showsHorizontalScrollIndicator = NO;
     self.scrollView.showsVerticalScrollIndicator = NO;
     self.scrollView.directionalLockEnabled = YES;
     self.scrollView.bounces = NO;
     self.scrollView.delegate = self;
-    for (int i = 0; i < 3; i++) {
-        CGRect viewControllerFrame = CGRectMake(i * ScreenWidth, 0, ScreenWidth, height);
-        UIViewController *viewController = self.viewControllers[i][@"view"];
-        viewController.view.frame = viewControllerFrame;
-        [self.scrollView addSubview:viewController.view];
-    }
-    [self addSubview:self.scrollView];
     self.middenIndex = 1;
-    self.isEndOfScroll = YES;
-    UIView *middenView = (UIView *)self.scrollView.subviews[1];
-    [self.scrollView scrollRectToVisible:middenView.frame animated:NO];
+    [self reloadScrollView];
+    [self addSubview:self.scrollView];
 }
 
 #pragma mark - UIScrollViewDelegate
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    self.startOffsetX = scrollView.contentOffset.x;
-}
-
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    self.willEndOffsetX = scrollView.contentOffset.x;
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    self.endOffsetX = scrollView.contentOffset.x;
-    if (self.startOffsetX < self.willEndOffsetX && self.willEndOffsetX < self.endOffsetX) {
-        // 右
-        self.middenIndex++;
-        [self reloadScrollView];
-        NSLog(@"right");
-    }
-    else if (self.willEndOffsetX > self.endOffsetX && self.willEndOffsetX < self.startOffsetX) {
-        // 左
-        self.middenIndex--;
-        [self reloadScrollView];
-        NSLog(@"left");
-    }
-}
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    if (scrollView.contentOffset.x >= 480 || scrollView.contentOffset.x <= 160) {
-        self.scrollView.userInteractionEnabled = NO;
-    }
+    [self changeViewWithOffset:scrollView.contentOffset.x];
 }
 
 #pragma mark - Button Action
@@ -153,17 +116,14 @@
 - (void)reloadScrollView {
     [self.scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     NSInteger startIndex = self.middenIndex - 2;
-    CGFloat height = ScreenHeight - TopViewHeight;
     for (int i = 0; i < 3; i++) {
-        CGRect viewControllerFrame = CGRectMake(i * ScreenWidth, 0, ScreenWidth, height);
+        CGRect viewControllerFrame = CGRectMake(i * ScreenWidth, 0, ScreenWidth, ScrollViewHeight);
         startIndex += 1;
         UIViewController *viewController = self.viewControllers[[self correctionIndex:startIndex]][@"view"];
         viewController.view.frame = viewControllerFrame;
         [self.scrollView addSubview:viewController.view];
     }
-    UIView *middenView = (UIView *)self.scrollView.subviews[1];
-    [self.scrollView scrollRectToVisible:middenView.frame animated:NO];
-    self.scrollView.userInteractionEnabled = YES;
+    self.scrollView.contentOffset = CGPointMake(ScreenWidth, 0);
 }
 
 - (NSInteger)correctionIndex:(NSInteger)index {
@@ -172,4 +132,14 @@
     return index;
 }
 
+- (void)changeViewWithOffset:(CGFloat)offsetX {
+    if (offsetX >= ScreenWidth * 2) {
+        self.middenIndex++;
+        [self reloadScrollView];
+    }
+    else if (offsetX <= 0) {
+        self.middenIndex--;
+        [self reloadScrollView];
+    }
+}
 @end

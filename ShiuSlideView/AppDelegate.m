@@ -20,6 +20,10 @@
     self.window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
     self.window.rootViewController = [MainViewController new];
     [self.window makeKeyAndVisible];
+    CGRect windowRect = [[UIScreen mainScreen]bounds];
+    
+    NSLog(@"%@", NSStringFromCGRect(windowRect));
+   // - See more at: http://furnacedigital.blogspot.tw/2011/10/blog-post_13.html#sthash.y9S0lmZf.dpuf
     return YES;
 }
 
