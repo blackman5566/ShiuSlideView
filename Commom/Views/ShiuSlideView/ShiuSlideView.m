@@ -82,6 +82,7 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self changeViewWithOffset:scrollView.contentOffset.x];
+    [self changeDisplayLabel:scrollView.contentOffset.x];
 }
 
 #pragma mark - Button Action
@@ -136,10 +137,33 @@
     if (offsetX >= ScreenWidth * 2) {
         self.middenIndex++;
         [self reloadScrollView];
+        NSLog(@"right");
     }
     else if (offsetX <= 0) {
         self.middenIndex--;
         [self reloadScrollView];
+        NSLog(@"left");
     }
 }
+
+- (void)changeDisplayLabel:(int)offsetX {
+    int transitionPoints = ScreenWidth / 2;
+
+    offsetX -= ScreenWidth;
+    int conventX = abs(offsetX % (int)ScreenWidth);
+
+    float temp = (float)conventX / transitionPoints;
+    self.displayLable.alpha = fabs(1 - temp);
+
+    NSInteger nextIndex;
+    if (offsetX > transitionPoints && offsetX > 0) {
+        nextIndex = [self correctionIndex:self.middenIndex + 1];
+        self.displayLable.text = self.viewControllers[nextIndex][@"title"];
+    }
+    else if (offsetX < -transitionPoints && offsetX < 0) {
+        nextIndex = [self correctionIndex:self.middenIndex - 1];
+        self.displayLable.text = self.viewControllers[nextIndex][@"title"];
+    }
+}
+
 @end
