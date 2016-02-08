@@ -11,6 +11,7 @@
 #define TopViewWidth 50
 #define TopViewHeight 50
 #define ScrollViewHeight (ScreenHeight - TopViewHeight)
+#define UIColorRGBA(r, g, b, a) [UIColor colorWithRed: (r) / 255.0 green: (g) / 255.0 blue: (b) / 255.0 alpha: (a)]
 
 @interface ShiuSlideView () <UIScrollViewDelegate>
 
@@ -18,6 +19,9 @@
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UILabel *displayLable;
 @property (nonatomic, assign) NSInteger middenIndex;
+@property (nonatomic, strong) UIView *topView;
+@property (nonatomic, strong) NSArray *colorArrays;
+@property (nonatomic, assign) NSInteger nextIndex;
 
 @end
 
@@ -33,13 +37,18 @@
 
 - (void)setViewControllers:(NSArray *)viewControllers {
     _viewControllers = viewControllers;
+    [self setupColor];
     [self setupTopView];
     [self setupScrollView];
 }
 
 - (void)setupTopView {
-    UIView *topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, TopViewHeight)];
-    topView.backgroundColor = [UIColor redColor];
+    self.middenIndex = 1;
+    self.topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, TopViewHeight)];
+    NSNumber *red = self.colorArrays[self.middenIndex][@"red"];
+    NSNumber *green = self.colorArrays[self.middenIndex][@"green"];
+    NSNumber *blue = self.colorArrays[self.middenIndex][@"blue"];
+    self.topView.backgroundColor = UIColorRGBA([red doubleValue], [green doubleValue], [blue doubleValue], 1);
     UIButton *leftButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, TopViewWidth, TopViewHeight)];
     [leftButton addTarget:self action:@selector(leftButtonAction:) forControlEvents:UIControlEventTouchDown];
     [leftButton setTitle:@"<" forState:UIControlStateNormal];
@@ -49,18 +58,18 @@
     [rightButton addTarget:self action:@selector(rightButtonAction:) forControlEvents:UIControlEventTouchDown];
     [rightButton setTitle:@">" forState:UIControlStateNormal];
 
-    CGFloat centerX = (CGRectGetWidth(topView.frame) - 100) / 2;
-    CGFloat centerY = (CGRectGetHeight(topView.frame) - 50) / 2;
+    CGFloat centerX = (CGRectGetWidth(self.topView.frame) - 100) / 2;
+    CGFloat centerY = (CGRectGetHeight(self.topView.frame) - 50) / 2;
     self.displayLable = [[UILabel alloc] initWithFrame:CGRectMake(centerX, centerY, 100, 50)];
     self.displayLable.font = [UIFont fontWithName:@"Helvetica-Bold" size:20];
-    self.displayLable.text = self.viewControllers[1][@"title"];
+    self.displayLable.text = self.viewControllers[self.middenIndex][@"title"];
     self.displayLable.textColor = [UIColor whiteColor];
     self.displayLable.textAlignment = NSTextAlignmentCenter;
 
-    [topView addSubview:self.displayLable];
-    [topView addSubview:leftButton];
-    [topView addSubview:rightButton];
-    [self addSubview:topView];
+    [self.topView addSubview:self.displayLable];
+    [self.topView addSubview:leftButton];
+    [self.topView addSubview:rightButton];
+    [self addSubview:self.topView];
 }
 
 - (void)setupScrollView {
@@ -73,9 +82,12 @@
     self.scrollView.directionalLockEnabled = YES;
     self.scrollView.bounces = NO;
     self.scrollView.delegate = self;
-    self.middenIndex = 1;
     [self reloadScrollView];
     [self addSubview:self.scrollView];
+}
+
+- (void)setupColor {
+    self.colorArrays = @[@{ @"red":@100, @"green":@149, @"blue":@237 }, @{ @"red":@238, @"green":@59, @"blue":@59 }, @{ @"red":@255, @"green":@255, @"blue":@0 }];
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -143,15 +155,31 @@
     float temp = (float)conventX / transitionPoints;
     self.displayLable.alpha = fabs(1 - temp);
 
-    NSInteger nextIndex;
-    if (offsetX > transitionPoints && offsetX > 0) {
-        nextIndex = [self correctionIndex:self.middenIndex + 1];
-        self.displayLable.text = self.viewControllers[nextIndex][@"title"];
+    if ([self isOffsetXInRange:offsetX]) {
+        if (offsetX > transitionPoints) {
+            self.nextIndex = [self correctionIndex:self.middenIndex + 1];
+        }
+        else if (offsetX < -transitionPoints) {
+            self.nextIndex = [self correctionIndex:self.middenIndex - 1];
+            
+        }
+        self.displayLable.text = self.viewControllers[self.nextIndex][@"title"];
+
+        
+        
+        
+        NSNumber *red = self.colorArrays[self.middenIndex][@"red"];
+        NSNumber *green = self.colorArrays[self.middenIndex][@"green"];
+        NSNumber *blue = self.colorArrays[self.middenIndex][@"blue"];
+        self.topView.backgroundColor = UIColorRGBA(255, 228, 181, 1);
     }
-    else if (offsetX < -transitionPoints && offsetX < 0) {
-        nextIndex = [self correctionIndex:self.middenIndex - 1];
-        self.displayLable.text = self.viewControllers[nextIndex][@"title"];
+}
+
+- (BOOL)isOffsetXInRange:(int)offsetX {
+    if (offsetX > 0 || offsetX < 0) {
+        return YES;
     }
+    return NO;
 }
 
 @end
