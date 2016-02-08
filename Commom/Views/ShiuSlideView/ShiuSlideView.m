@@ -88,31 +88,14 @@
 #pragma mark - Button Action
 
 - (void)leftButtonAction:(id)sender {
-    [self leftAction];
-    [UIView animateWithDuration:.25 animations: ^{
-         self.scrollView.contentOffset = CGPointMake(0, 0);
-     }];
-    [self reloadScrollView];
+    [self.scrollView setContentOffset:CGPointMake(0, 0) animated:YES];
 }
 
 - (void)rightButtonAction:(id)sender {
-    [self rightAction];
-    [UIView animateWithDuration:.25 animations: ^{
-         self.scrollView.contentOffset = CGPointMake(2 * ScreenWidth, 0);
-     }];
-    [self reloadScrollView];
+    [self.scrollView setContentOffset:CGPointMake(2 * ScreenWidth, 0) animated:YES];
 }
+
 #pragma mark - private method
-
-- (void)leftAction {
-    self.middenIndex--;
-    self.middenIndex = [self correctionIndex:self.middenIndex];
-}
-
-- (void)rightAction {
-    self.middenIndex++;
-    self.middenIndex = [self correctionIndex:self.middenIndex];
-}
 
 - (void)reloadScrollView {
     [self.scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
@@ -124,7 +107,8 @@
         viewController.view.frame = viewControllerFrame;
         [self.scrollView addSubview:viewController.view];
     }
-    self.scrollView.contentOffset = CGPointMake(ScreenWidth, 0);
+    [self.scrollView setContentOffset:CGPointMake(ScreenWidth, 0) animated:NO];
+    self.scrollView.userInteractionEnabled = YES;
 }
 
 - (NSInteger)correctionIndex:(NSInteger)index {
@@ -134,15 +118,19 @@
 }
 
 - (void)changeViewWithOffset:(CGFloat)offsetX {
+    CGFloat leftBorder = (float)ScreenWidth / 2;
+    CGFloat rightBorder = ScreenWidth + leftBorder;
+    if (offsetX >= rightBorder || offsetX <= leftBorder) {
+        self.scrollView.userInteractionEnabled = NO;
+    }
+
     if (offsetX >= ScreenWidth * 2) {
-        self.middenIndex++;
+        self.middenIndex = [self correctionIndex:self.middenIndex + 1];
         [self reloadScrollView];
-        NSLog(@"right");
     }
     else if (offsetX <= 0) {
-        self.middenIndex--;
+        self.middenIndex = [self correctionIndex:self.middenIndex - 1];
         [self reloadScrollView];
-        NSLog(@"left");
     }
 }
 
