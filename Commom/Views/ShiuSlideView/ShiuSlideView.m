@@ -87,7 +87,7 @@
 }
 
 - (void)setupColor {
-    self.colorArrays = @[@{ @"red":@100, @"green":@149, @"blue":@237 }, @{ @"red":@238, @"green":@59, @"blue":@59 }, @{ @"red":@255, @"green":@255, @"blue":@0 }];
+    self.colorArrays = @[@{ @"red":@238, @"green":@221, @"blue":@130 }, @{ @"red":@162, @"green":@205, @"blue":@90 }, @{ @"red":@64, @"green":@224, @"blue":@208 }];
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -132,6 +132,8 @@
 - (void)changeViewWithOffset:(CGFloat)offsetX {
     CGFloat leftBorder = (float)ScreenWidth / 2;
     CGFloat rightBorder = ScreenWidth + leftBorder;
+
+    self.scrollView.userInteractionEnabled = YES;
     if (offsetX >= rightBorder || offsetX <= leftBorder) {
         self.scrollView.userInteractionEnabled = NO;
     }
@@ -148,11 +150,8 @@
 
 - (void)changeDisplayLabel:(int)offsetX {
     int transitionPoints = ScreenWidth / 2;
-
     offsetX -= ScreenWidth;
-    int conventX = abs(offsetX % (int)ScreenWidth);
-
-    float temp = (float)conventX / transitionPoints;
+    float temp = (float)abs(offsetX) / transitionPoints;
     self.displayLable.alpha = fabs(1 - temp);
 
     if ([self isOffsetXInRange:offsetX]) {
@@ -161,18 +160,33 @@
         }
         else if (offsetX < -transitionPoints) {
             self.nextIndex = [self correctionIndex:self.middenIndex - 1];
-            
+
         }
         self.displayLable.text = self.viewControllers[self.nextIndex][@"title"];
 
-        
-        
-        
+
+
+
         NSNumber *red = self.colorArrays[self.middenIndex][@"red"];
         NSNumber *green = self.colorArrays[self.middenIndex][@"green"];
         NSNumber *blue = self.colorArrays[self.middenIndex][@"blue"];
-        self.topView.backgroundColor = UIColorRGBA(255, 228, 181, 1);
+
+        NSNumber *nextRed = self.colorArrays[self.nextIndex][@"red"];
+        NSNumber *nextGreen = self.colorArrays[self.nextIndex][@"green"];
+        NSNumber *nextBlue = self.colorArrays[self.nextIndex][@"blue"];
+
+        CGFloat newRed = [self creatColorWithMiddenColor:[red doubleValue] andChangeColor:[nextRed doubleValue] inOffsetX:offsetX];
+        CGFloat newGreen = [self creatColorWithMiddenColor:[green doubleValue] andChangeColor:[nextGreen doubleValue] inOffsetX:offsetX];
+
+        CGFloat newBlue = [self creatColorWithMiddenColor:[blue doubleValue] andChangeColor:[nextBlue doubleValue] inOffsetX:offsetX];
+        self.topView.backgroundColor = UIColorRGBA(newRed, newGreen, newBlue, 1);
     }
+}
+
+- (CGFloat)creatColorWithMiddenColor:(CGFloat)middenColor andChangeColor:(CGFloat)changeColor inOffsetX:(int)offsetX {
+    CGFloat colorGap = changeColor - middenColor;
+    changeColor = middenColor + (colorGap * (abs(offsetX) / ScreenWidth));
+    return changeColor;
 }
 
 - (BOOL)isOffsetXInRange:(int)offsetX {
