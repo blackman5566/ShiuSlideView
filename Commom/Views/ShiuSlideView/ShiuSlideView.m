@@ -37,13 +37,18 @@
 
 - (void)setViewControllers:(NSArray *)viewControllers {
     _viewControllers = viewControllers;
+    [self setupParameters];
     [self setupColor];
     [self setupTopView];
     [self setupScrollView];
 }
 
-- (void)setupTopView {
+- (void)setupParameters {
     self.middenIndex = 1;
+    self.nextIndex = 1;
+}
+
+- (void)setupTopView {
     self.topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, TopViewHeight)];
     NSNumber *red = self.colorArrays[self.middenIndex][@"red"];
     NSNumber *green = self.colorArrays[self.middenIndex][@"green"];
@@ -148,12 +153,49 @@
     }
 }
 
-- (void)changeDisplayLabel:(int)offsetX {
-    int transitionPoints = ScreenWidth / 2;
+- (void)changeDisplayLabel:(CGFloat)offsetX {
+    CGFloat transitionPoints = ScreenWidth / 2;
     offsetX -= ScreenWidth;
-    float temp = (float)abs(offsetX) / transitionPoints;
+    CGFloat temp = fabs(offsetX) / transitionPoints;
     self.displayLable.alpha = fabs(1 - temp);
 
+    if ([self isOffsetXInRange:offsetX]) {
+        [self changeDisplayLable:offsetX transitionPoints:transitionPoints];
+        [self changeBackgroundColor:offsetX];
+    }
+}
+
+
+- (CGFloat)creatColorWithMiddenColor:(CGFloat)middenColor andChangeColor:(CGFloat)changeColor inOffsetX:(int)offsetX {
+    CGFloat colorGap = changeColor - middenColor;
+    changeColor = middenColor + (colorGap * (abs(offsetX) / ScreenWidth));
+    return changeColor;
+}
+
+- (void)changeBackgroundColor:(CGFloat)offsetX {
+    NSInteger colorIndex;
+    if (offsetX < 0) {
+        colorIndex = [self correctionIndex:self.middenIndex - 1];
+    }
+    else if (offsetX > 0) {
+        colorIndex = [self correctionIndex:self.middenIndex + 1];
+    }
+
+    NSNumber *red = self.colorArrays[self.middenIndex][@"red"];
+    NSNumber *green = self.colorArrays[self.middenIndex][@"green"];
+    NSNumber *blue = self.colorArrays[self.middenIndex][@"blue"];
+
+    NSNumber *nextRed = self.colorArrays[colorIndex][@"red"];
+    NSNumber *nextGreen = self.colorArrays[colorIndex][@"green"];
+    NSNumber *nextBlue = self.colorArrays[colorIndex][@"blue"];
+
+    CGFloat newRed = [self creatColorWithMiddenColor:[red doubleValue] andChangeColor:[nextRed doubleValue] inOffsetX:offsetX];
+    CGFloat newGreen = [self creatColorWithMiddenColor:[green doubleValue] andChangeColor:[nextGreen doubleValue] inOffsetX:offsetX];
+    CGFloat newBlue = [self creatColorWithMiddenColor:[blue doubleValue] andChangeColor:[nextBlue doubleValue] inOffsetX:offsetX];
+    self.topView.backgroundColor = UIColorRGBA(newRed, newGreen, newBlue, 1);
+}
+
+- (void)changeDisplayLable:(CGFloat)offsetX transitionPoints:(CGFloat)transitionPoints {
     if ([self isOffsetXInRange:offsetX]) {
         if (offsetX > transitionPoints) {
             self.nextIndex = [self correctionIndex:self.middenIndex + 1];
@@ -163,33 +205,10 @@
 
         }
         self.displayLable.text = self.viewControllers[self.nextIndex][@"title"];
-
-
-
-
-        NSNumber *red = self.colorArrays[self.middenIndex][@"red"];
-        NSNumber *green = self.colorArrays[self.middenIndex][@"green"];
-        NSNumber *blue = self.colorArrays[self.middenIndex][@"blue"];
-
-        NSNumber *nextRed = self.colorArrays[self.nextIndex][@"red"];
-        NSNumber *nextGreen = self.colorArrays[self.nextIndex][@"green"];
-        NSNumber *nextBlue = self.colorArrays[self.nextIndex][@"blue"];
-
-        CGFloat newRed = [self creatColorWithMiddenColor:[red doubleValue] andChangeColor:[nextRed doubleValue] inOffsetX:offsetX];
-        CGFloat newGreen = [self creatColorWithMiddenColor:[green doubleValue] andChangeColor:[nextGreen doubleValue] inOffsetX:offsetX];
-
-        CGFloat newBlue = [self creatColorWithMiddenColor:[blue doubleValue] andChangeColor:[nextBlue doubleValue] inOffsetX:offsetX];
-        self.topView.backgroundColor = UIColorRGBA(newRed, newGreen, newBlue, 1);
     }
 }
 
-- (CGFloat)creatColorWithMiddenColor:(CGFloat)middenColor andChangeColor:(CGFloat)changeColor inOffsetX:(int)offsetX {
-    CGFloat colorGap = changeColor - middenColor;
-    changeColor = middenColor + (colorGap * (abs(offsetX) / ScreenWidth));
-    return changeColor;
-}
-
-- (BOOL)isOffsetXInRange:(int)offsetX {
+- (BOOL)isOffsetXInRange:(CGFloat)offsetX {
     if (offsetX > 0 || offsetX < 0) {
         return YES;
     }
