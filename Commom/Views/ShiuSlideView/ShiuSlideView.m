@@ -165,7 +165,6 @@
     }
 }
 
-
 - (CGFloat)creatColorWithMiddenColor:(CGFloat)middenColor andChangeColor:(CGFloat)changeColor inOffsetX:(int)offsetX {
     CGFloat colorGap = changeColor - middenColor;
     changeColor = middenColor + (colorGap * (abs(offsetX) / ScreenWidth));
